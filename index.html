@@ -7,30 +7,47 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <style>
         body {
+            margin: 0;
             font-family: Arial, sans-serif;
         }
         #map {
-            height: 600px;
+            height: calc(100vh - 80px);
             width: 100%;
-            margin-top: 20px;
         }
         .popup-image {
             max-width: 100%;
             height: auto;
         }
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 80px;
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 10px;
+        }
         .filter-container {
-            margin-bottom: 20px;
+            margin-top: 10px;
+        }
+        select, button {
+            padding: 5px;
+            margin: 5px;
         }
     </style>
 </head>
 <body>
-    <h1>Chess Playing Spots Around the World</h1>
-    <div class="filter-container">
-        <label for="filter">Filter by:</label>
-        <select id="filter">
-            <option value="">Select Country/City</option>
-        </select>
-        <button onclick="applyFilter()">Apply Filter</button>
+    <div class="header">
+        <h1>Chess Playing Spots Around the World</h1>
+        <div class="filter-container">
+            <label for="filter">Filter by:</label>
+            <select id="filter">
+                <option value="">Select Country/City</option>
+            </select>
+            <button onclick="applyFilter()">Apply Filter</button>
+        </div>
     </div>
     <div id="map"></div>
 
@@ -39,14 +56,10 @@
         // Initialize the map
         var map = L.map('map').setView([20, 0], 2);
 
-        // Add a tile layer to the map (Mapbox)
-        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=YOUR_MAPBOX_ACCESS_TOKEN', {
-            attribution: '&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> contributors',
-            maxZoom: 18,
-            id: 'mapbox/streets-v11', // You can change this to another Mapbox style if desired
-            tileSize: 512,
-            zoomOffset: -1,
-            accessToken: 'YOUR_MAPBOX_ACCESS_TOKEN'
+        // Add a tile layer to the map (OpenStreetMap)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 18
         }).addTo(map);
 
         var markers = [];
@@ -63,6 +76,8 @@
                 <b>Source:</b> <a href="${source}" target="_blank">${source}</a><br>
                 <b>Times:</b> ${times}<br>
                 <b>Type:</b> ${type}<br>
+                <b>City:</b> ${city}<br>
+                <b>Country:</b> ${country}<br>
                 <b>Address:</b> ${address}
             `;
             var marker = L.marker([lat, lon]).addTo(map).bindPopup(popupContent);
