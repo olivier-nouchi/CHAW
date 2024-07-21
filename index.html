@@ -24,7 +24,7 @@
             align-items: center;
             justify-content: center;
             height: 100px;
-            background: url('https://example.com/chess-background.jpg') no-repeat center center;
+            background: url('https://i.imgur.com/uXxb6nu.jpg') no-repeat center center;
             background-size: cover;
             color: white;
             text-align: center;
@@ -37,7 +37,7 @@
             display: flex;
             align-items: center;
         }
-        select, button {
+        input[type="text"], select, button {
             padding: 5px;
             margin: 5px;
         }
@@ -47,9 +47,11 @@
     <div class="header">
         <h1>Chess Playing Spots Around the World</h1>
         <div class="filter-container">
-            <label for="filter">Filter by:</label>
-            <select id="filter">
-                <option value="">Select Country/City</option>
+            <label for="cityFilter">Filter by City/Country:</label>
+            <input type="text" id="cityFilter" placeholder="Type city or country">
+            <label for="typeFilter">Filter by Type:</label>
+            <select id="typeFilter">
+                <option value="">Select Type</option>
             </select>
             <button onclick="applyFilter()">Apply Filter</button>
         </div>
@@ -68,27 +70,29 @@
         }).addTo(map);
 
         var markers = [];
-        var filterOptions = new Set();
+        var typeOptions = new Set();
 
         // Function to create markers with popups
-        function addMarker(lat, lon, name, days, official, reportedBy, image, source, times, type, city, country, address) {
+        function addMarker(lat, lon, name, days, official, reportedBy, image, site, times, type, city, country, address, contact) {
             var popupContent = `
                 <b>${name}</b><br>
                 ${image ? `<img src="${image}" class="popup-image"><br>` : ''}
                 <b>Days:</b> ${days}<br>
                 <b>Official:</b> ${official}<br>
                 <b>Reported By:</b> ${reportedBy}<br>
-                <b>Source:</b> <a href="${source}" target="_blank">${source}</a><br>
+                <b>Site:</b> <a href="${site}" target="_blank">${site}</a><br>
                 <b>Times:</b> ${times}<br>
                 <b>Type:</b> ${type}<br>
                 <b>City:</b> ${city}<br>
                 <b>Country:</b> ${country}<br>
-                <b>Address:</b> ${address}
+                <b>Address:</b> ${address}<br>
+                <b>Contact:</b> ${contact}
             `;
             var marker = L.marker([lat, lon]).addTo(map).bindPopup(popupContent);
-            markers.push({ marker: marker, name: name, city: city, country: country, lat: lat, lon: lon });
+            markers.push({ marker: marker, name: name, city: city, country: country, lat: lat, lon: lon, type: type });
 
-            filterOptions.add(`${city}, ${country}`);
+            // Add type to the set of type options
+            typeOptions.add(type);
         }
 
         // Load JSON data
@@ -96,32 +100,38 @@
             .then(response => response.json())
             .then(data => {
                 data.forEach(spot => {
-                    addMarker(spot.lat, spot.lon, spot.name, spot.days, spot.official, spot.reportedBy, spot.image, spot.source, spot.times, spot.type, spot.city, spot.country, spot.address);
+                    addMarker(spot.lat, spot.lon, spot.name, spot.days, spot.official, spot.reportedBy, spot.image, spot.site, spot.times, spot.type, spot.city, spot.country, spot.address, spot.contact);
                 });
-                updateFilterOptions();
+                updateTypeOptions();
             })
             .catch(error => console.error('Error loading JSON:', error));
 
-        // Update filter options based on JSON data
-        function updateFilterOptions() {
-            var filterSelect = document.getElementById('filter');
-            filterOptions.forEach(option => {
+        // Update type filter options based on JSON data
+        function updateTypeOptions() {
+            var typeFilter = document.getElementById('typeFilter');
+            typeOptions.forEach(type => {
                 var opt = document.createElement('option');
-                opt.value = option;
-                opt.innerHTML = option;
-                filterSelect.appendChild(opt);
+                opt.value = type;
+                opt.innerHTML = type;
+                typeFilter.appendChild(opt);
             });
         }
 
         // Apply filter to focus on selected location
         function applyFilter() {
-            var filterValue = document.getElementById('filter').value;
-            if (filterValue) {
-                var filteredMarker = markers.find(m => `${m.city}, ${m.country}` === filterValue);
-                if (filteredMarker) {
-                    map.setView([filteredMarker.lat, filteredMarker.lon], 10);
-                    filteredMarker.marker.openPopup();
-                }
+            var cityFilterValue = document.getElementById('cityFilter').value.toLowerCase();
+            var typeFilterValue = document.getElementById('typeFilter').value;
+
+            var filteredMarkers = markers.filter(m =>
+                (m.city.toLowerCase().includes(cityFilterValue) ||
+                m.country.toLowerCase().includes(cityFilterValue)) &&
+                (typeFilterValue === "" || m.type === typeFilterValue)
+            );
+
+            if (filteredMarkers.length > 0) {
+                var filteredMarker = filteredMarkers[0];
+                map.setView([filteredMarker.lat, filteredMarker.lon], 10);
+                filteredMarker.marker.openPopup();
             } else {
                 map.setView([48.8566, 2.3522], 5); // Reset to Europe view
             }
