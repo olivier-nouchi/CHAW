@@ -1,0 +1,37 @@
+[
+    {
+        "lat": 48.8566,
+        "lon": 2.3522,
+        "name": "Paris Chess Club",
+        "days": "Monday, Wednesday, Friday",
+        "official": "Yes",
+        "reportedBy": "Admin",
+        "image": "https://raw.githubusercontent.com/your-username/your-repo/main/images/paris_chess_club.jpg",
+        "source": "https://parischessclub.com",
+        "times": "10:00 - 18:00",
+        "type": "Chess Club"
+    },
+    {
+        "lat": 40.7128,
+        "lon": -74.0060,
+        "name": "New York Central Park",
+        "days": "Saturday, Sunday",
+        "official": "No",
+        "reportedBy": "User123",
+        "source": "https://nycentralpark.com/chess",
+        "times": "12:00 - 20:00",
+        "type": "Garden"
+    },
+    {
+        "lat": 51.5074,
+        "lon": -0.1278,
+        "name": "London Open Chess",
+        "days": "Everyday",
+        "official": "No",
+        "reportedBy": "User456",
+        "image": "https://raw.githubusercontent.com/your-username/your-repo/main/images/london_open_chess.jpg",
+        "source": "https://londonopenchess.com",
+        "times": "09:00 - 21:00",
+        "type": "Chess Club"
+    }
+]
