@@ -11,7 +11,7 @@
             font-family: Arial, sans-serif;
         }
         #map {
-            height: calc(100vh - 80px);
+            height: calc(100vh - 100px);
             width: 100%;
         }
         .popup-image {
@@ -23,14 +23,19 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 80px;
-            background-color: #4CAF50;
+            height: 100px;
+            background: url('https://example.com/chess-background.jpg') no-repeat center center;
+            background-size: cover;
             color: white;
             text-align: center;
             padding: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            background-blend-mode: overlay;
         }
         .filter-container {
             margin-top: 10px;
+            display: flex;
+            align-items: center;
         }
         select, button {
             padding: 5px;
@@ -53,8 +58,8 @@
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
-        // Initialize the map
-        var map = L.map('map').setView([20, 0], 2);
+        // Initialize the map with a default view focused on Europe
+        var map = L.map('map').setView([48.8566, 2.3522], 5);
 
         // Add a tile layer to the map (OpenStreetMap)
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -118,7 +123,7 @@
                     filteredMarker.marker.openPopup();
                 }
             } else {
-                map.setView([20, 0], 2); // Reset to world view
+                map.setView([48.8566, 2.3522], 5); // Reset to Europe view
             }
         }
     </script>
