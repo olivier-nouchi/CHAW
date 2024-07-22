@@ -29,7 +29,7 @@
     </div>
     <div id="map"></div>
 
-<script>
+ <script>
 document.addEventListener('DOMContentLoaded', function() {
     var map = L.map('map').setView([48.8566, 2.3522], 5);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -51,11 +51,12 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             data.forEach(spot => {
                 addMarker(spot);
-                cityCountrySet.add(spot.city + ", " + spot.country);
+                cityCountrySet.add(spot.city);
+                cityCountrySet.add(spot.country);
                 typeSet.add(spot.type);
             });
-            updateTypeFilter();
             updateAutocomplete();
+            updateTypeFilter();
         });
 
     function addMarker(spot) {
@@ -67,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function getPopupContent(spot) {
         return `<b>${spot.name}</b><br>
-                <img src="${spot.image || typeLogos[spot.type]}" style="width: 100px;"><br>
+                <img src="${spot.image || typeLogos[spot.type]}" style="width: 150px;"><br>
                 <b>Location:</b> ${spot.city}, ${spot.country}<br>
                 <b>Type:</b> ${spot.type}<br>
                 <b>Days:</b> ${spot.days}<br>
@@ -104,17 +105,28 @@ document.addEventListener('DOMContentLoaded', function() {
     function applyFilter() {
         var cityFilterValue = document.getElementById('cityFilter').value.toLowerCase();
         var typeFilterValue = document.getElementById('typeFilter').value.toLowerCase();
+        var filteredMarkers = markers.filter(function(marker) {
+            var data = marker.options.data;
+            var matchesCity = cityFilterValue === '' || data.city.toLowerCase().includes(cityFilterValue) || data.country.toLowerCase().includes(cityFilterValue);
+            var matchesType = typeFilterValue === '' || data.type.toLowerCase().includes(typeFilterValue);
+            return matchesCity && matchesType;
+        });
+
+        if (filteredMarkers.length === 0) {
+            return;
+        }
+
         document.getElementById('clubList').innerHTML = ''; // Clear the list
 
-        markers.forEach(marker => {
-            if (marker.getPopup().getContent().toLowerCase().includes(cityFilterValue) &&
-                marker.getPopup().getContent().toLowerCase().includes(typeFilterValue)) {
-                marker.addTo(map);
-                document.getElementById('clubList').appendChild(createListItem(marker, marker.options.data));
-            } else {
-                map.removeLayer(marker);
-            }
+        filteredMarkers.forEach(function(marker) {
+            marker.addTo(map);
+            document.getElementById('clubList').appendChild(createListItem(marker, marker.options.data));
         });
+
+        if (filteredMarkers.length > 0) {
+            var bounds = L.latLngBounds(filteredMarkers.map(function(m) { return m.getLatLng(); }));
+            map.fitBounds(bounds);
+        }
     }
 
     document.getElementById('cityFilter').addEventListener('keypress', function(e) {
@@ -122,6 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
             applyFilter();
         }
     });
+
     document.getElementById('typeFilter').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             applyFilter();
@@ -129,5 +142,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
 </body>
 </html>
