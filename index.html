@@ -41,9 +41,9 @@
             var cityCountrySet = new Set();
             var typeSet = new Set();
             var typeLogos = {
-                "Chess Club": "https://i.imgur.com/96rCMOK.png",
-                "Chess Park": "https://i.imgur.com/lujRXd5.png",
-                "Chess Cafe": "https://i.imgur.com/Pzgo8PH.png"
+                "Club": "https://i.imgur.com/96rCMOK.png",
+                "Park": "https://i.imgur.com/lujRXd5.png",
+                "Cafe": "https://i.imgur.com/Pzgo8PH.png"
             };
 
             fetch('chess_spots.json')
@@ -68,13 +68,13 @@
 
             function getPopupContent(spot) {
                 return `<b>${spot.name}</b><br>
-                        <img src="${spot.image || typeLogos[spot.type]}" style="width: 150px;"><br>
+                        <img src="${spot.image || typeLogos[spot.type]}" style="width: 300px;"><br>
                         <b>Location:</b> ${spot.city}, ${spot.country}<br>
                         <b>Type:</b> ${spot.type}<br>
-                        <b>Days:</b> ${spot.days}<br>
-                        <b>Times:</b> ${spot.times}<br>
+                        <b>Opening Times:</b> ${spot.openingTimes}<br>
                         <b>Address:</b> ${spot.address}<br>
-                        <b>Contact:</b> ${spot.contact}`;
+                        <b>Contact:</b> ${spot.contact}<br>
+                        <b>Website:</b> <a href="${spot.site}" target="_blank">${spot.site}</a>`;
             }
 
             function createListItem(marker, spot) {
