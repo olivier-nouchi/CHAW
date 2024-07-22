@@ -11,7 +11,7 @@ body {
     width: 300px;
     overflow-y: auto;
     background-color: #f8f9fa;
-    padding: 20px;
+    padding: 10px; /* Reduced padding within the panel */
     box-shadow: 2px 0 5px rgba(0,0,0,0.1);
 }
 .header {
@@ -31,13 +31,14 @@ body {
 .clickable-item {
     cursor: pointer;
     margin-bottom: 5px;
-    padding: 5px; /* Adjust padding to align content to the far left */
+    padding: 5px; /* Adjust padding for list items */
     background: white;
     border-radius: 5px;
     border: 1px solid #ccc;
     list-style-type: none;
     display: flex;
     align-items: center;
+    justify-content: center; /* Center content horizontally */
 }
 input[type="text"], select, button {
     width: 100%;
@@ -45,7 +46,7 @@ input[type="text"], select, button {
     margin-top: 5px;
 }
 img.logo {
-    width: 80px; /* Adjust logo size */
-    height: 80px;
+    width: 60px; /* Adjust logo size */
+    height: 60px;
     margin-right: 10px;
 }
