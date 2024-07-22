@@ -8,10 +8,12 @@ body {
     flex-grow: 1;
 }
 .sidebar {
-    width: 300px;
+    width: 25%; /* Make sidebar width responsive */
+    max-width: 300px;
+    min-width: 150px;
     overflow-y: auto;
     background-color: #f8f9fa;
-    padding: 10px; /* Reduced padding within the panel */
+    padding: 10px;
     box-shadow: 2px 0 5px rgba(0,0,0,0.1);
 }
 .header {
@@ -20,33 +22,77 @@ body {
     color: white;
     text-align: center;
     padding: 10px;
-    background-color: rgba(0, 0, 0, 0.5);
+    position: relative;
+}
+.header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+}
+.header h1 {
+    position: relative;
+    z-index: 2;
 }
 .filter-container {
     margin-top: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-.clickable-item {
-    cursor: pointer;
-    margin-bottom: 5px;
-    padding: 5px; /* Adjust padding for list items */
-    background: white;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    list-style-type: none;
-    display: flex;
-    align-items: center;
-    justify-content: center; /* Center content horizontally */
+    position: relative;
+    z-index: 2;
 }
 input[type="text"], select, button {
     width: 100%;
     padding: 10px;
     margin-top: 5px;
 }
+.clickable-item {
+    cursor: pointer;
+    margin-bottom: 10px; /* Increased margin for better separation */
+    padding: 10px; /* Increased padding for better readability */
+    background: white;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    list-style-type: none;
+    display: flex;
+    flex-direction: column; /* Allow text to wrap properly */
+    width: 100%;
+    box-sizing: border-box; /* Ensure padding and border are included in width */
+    overflow: hidden;
+}
 img.logo {
-    width: 60px; /* Adjust logo size */
-    height: 60px;
-    margin-right: 10px;
+    width: 80px; /* Adjusted logo size */
+    height: 80px;
+    margin-bottom: 10px; /* Separate logo from text */
+    align-self: center; /* Center the logo */
+}
+.clickable-item b {
+    font-size: 14px; /* Ensures font size is readable */
+    text-align: left;
+    white-space: normal; /* Allow text to wrap */
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 20%;
+        padding: 5px;
+    }
+    .header {
+        padding: 5px;
+    }
+    .clickable-item {
+        padding: 5px;
+    }
+    img.logo {
+        width: 60px;
+        height: 60px;
+    }
+    .clickable-item b {
+        font-size: 12px; /* Adjust font size for smaller screens */
+    }
 }

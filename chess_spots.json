@@ -12,7 +12,8 @@
     "type": "Chess Park",
     "city": "Paris",
     "country": "France",
-    "address": "75006 Paris, France"
+    "address": "75006 Paris, France",
+    "contact": ""
   },
   {
     "lat": 48.8510,
@@ -27,7 +28,8 @@
     "type": "Chess Cafe",
     "city": "Paris",
     "country": "France",
-    "address": "4 Rue du Sabot, 75006 Paris, France"
+    "address": "4 Rue du Sabot, 75006 Paris, France",
+    "contact": ""
   },
   {
     "lat": 48.8489,
@@ -42,7 +44,8 @@
     "type": "Chess Club",
     "city": "Vincennes",
     "country": "France",
-    "address": "30 Rue de Montreuil, 94300 Vincennes, France"
+    "address": "30 Rue de Montreuil, 94300 Vincennes, France",
+    "contact": ""
   },
   {
     "lat": 48.45511885248725,
@@ -57,7 +60,8 @@
     "type": "Chess Club",
     "city": "Chartres",
     "country": "France",
-    "address": "31 rue Huysmans, Quartier Rechèvres, 28000 CHARTRES"
+    "address": "31 rue Huysmans, Quartier Rechèvres, 28000 CHARTRES",
+    "contact": ""
   },
   {
     "lat": 48.7666,
@@ -72,7 +76,8 @@
     "type": "Chess Club",
     "city": "Bischwiller",
     "country": "France",
-    "address": "10 Rue des Écoles, 67240 Bischwiller, France"
+    "address": "10 Rue des Écoles, 67240 Bischwiller, France",
+    "contact": ""
   },
   {
     "lat": 43.5528,
@@ -87,7 +92,8 @@
     "type": "Chess Club",
     "city": "Cannes",
     "country": "France",
-    "address": "3 Av. du Petit Juas, 06400 Cannes, France"
+    "address": "3 Av. du Petit Juas, 06400 Cannes, France",
+    "contact": ""
   },
   {
     "lat": 40.7336,
@@ -102,7 +108,8 @@
     "type": "Chess Club",
     "city": "New York",
     "country": "USA",
-    "address": "23 W 10th St, New York, NY 10011, USA"
+    "address": "23 W 10th St, New York, NY 10011, USA",
+    "contact": ""
   },
   {
     "lat": 38.6468,
@@ -117,7 +124,8 @@
     "type": "Chess Club",
     "city": "Saint Louis",
     "country": "USA",
-    "address": "4657 Maryland Ave, St. Louis, MO 63108, USA"
+    "address": "4657 Maryland Ave, St. Louis, MO 63108, USA",
+    "contact": ""
   },
   {
     "lat": 37.7881,
@@ -132,7 +140,8 @@
     "type": "Chess Club",
     "city": "San Francisco",
     "country": "USA",
-    "address": "57 Post St, San Francisco, CA 94104, USA"
+    "address": "57 Post St, San Francisco, CA 94104, USA",
+    "contact": ""
   },
   {
     "lat": 41.8789,
@@ -147,7 +156,8 @@
     "type": "Chess Club",
     "city": "Chicago",
     "country": "USA",
-    "address": "64 E Jackson Blvd, Chicago, IL 60604, USA"
+    "address": "64 E Jackson Blvd, Chicago, IL 60604, USA",
+    "contact": ""
   },
   {
     "lat": 47.7080,
@@ -162,6 +172,7 @@
     "type": "Chess Club",
     "city": "Seattle",
     "country": "USA",
-    "address": "2150 N 107th St, Seattle, WA 98133, USA"
+    "address": "2150 N 107th St, Seattle, WA 98133, USA",
+    "contact": ""
   }
 ]

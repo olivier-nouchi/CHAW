@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chess Playing Spots Map</title>
+    <title>Chess Spots Around the World</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
     <link rel="stylesheet" href="style.css">
@@ -14,7 +14,7 @@
 <body>
     <div class="sidebar">
         <div class="header">
-            <h1>Chess Playing Spots Around the World</h1>
+            <h1>Chess Spots Around the World</h1>
             <div class="filter-container">
                 <label for="cityFilter">City / Country:</label>
                 <input type="text" id="cityFilter" placeholder="Type city or country">
@@ -29,124 +29,124 @@
     </div>
     <div id="map"></div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    var map = L.map('map').setView([48.8566, 2.3522], 5);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 18
-    }).addTo(map);
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var map = L.map('map').setView([48.8566, 2.3522], 5);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 18
+            }).addTo(map);
 
-    var markers = [];
-    var cityCountrySet = new Set();
-    var typeSet = new Set();
-    var typeLogos = {
-        "Chess Club": "https://i.imgur.com/96rCMOK.png",
-        "Chess Park": "https://i.imgur.com/lujRXd5.png",
-        "Chess Cafe": "https://i.imgur.com/Pzgo8PH.png"
-    };
+            var markers = [];
+            var cityCountrySet = new Set();
+            var typeSet = new Set();
+            var typeLogos = {
+                "Chess Club": "https://i.imgur.com/96rCMOK.png",
+                "Chess Park": "https://i.imgur.com/lujRXd5.png",
+                "Chess Cafe": "https://i.imgur.com/Pzgo8PH.png"
+            };
 
-    fetch('chess_spots.json')
-        .then(response => response.json())
-        .then(data => {
-            data.forEach(spot => {
-                addMarker(spot);
-                cityCountrySet.add(spot.city);
-                cityCountrySet.add(spot.country);
-                typeSet.add(spot.type);
+            fetch('chess_spots.json')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(spot => {
+                        addMarker(spot);
+                        cityCountrySet.add(spot.city);
+                        cityCountrySet.add(spot.country);
+                        typeSet.add(spot.type);
+                    });
+                    updateAutocomplete();
+                    updateTypeFilter();
+                });
+
+            function addMarker(spot) {
+                var marker = L.marker([spot.lat, spot.lon], {data: spot}).addTo(map);
+                marker.bindPopup(getPopupContent(spot));
+                markers.push(marker);
+                document.getElementById('clubList').appendChild(createListItem(marker, spot));
+            }
+
+            function getPopupContent(spot) {
+                return `<b>${spot.name}</b><br>
+                        <img src="${spot.image || typeLogos[spot.type]}" style="width: 150px;"><br>
+                        <b>Location:</b> ${spot.city}, ${spot.country}<br>
+                        <b>Type:</b> ${spot.type}<br>
+                        <b>Days:</b> ${spot.days}<br>
+                        <b>Times:</b> ${spot.times}<br>
+                        <b>Address:</b> ${spot.address}<br>
+                        <b>Contact:</b> ${spot.contact}`;
+            }
+
+            function createListItem(marker, spot) {
+                var listItem = document.createElement('li');
+                listItem.className = 'clickable-item';
+                listItem.innerHTML = `<img src="${typeLogos[spot.type]}" class="logo" alt="${spot.type} Logo"><b>${spot.name}</b><br>${spot.city}, ${spot.country}`;
+                listItem.onclick = function() {
+                    map.setView(marker.getLatLng(), 15);
+                    marker.openPopup();
+                };
+                return listItem;
+            }
+
+            function updateAutocomplete() {
+                $("#cityFilter").autocomplete({
+                    source: Array.from(cityCountrySet)
+                });
+            }
+
+            function updateTypeFilter() {
+                var typeSelect = document.getElementById('typeFilter');
+                typeSet.forEach(function(type) {
+                    var option = document.createElement('option');
+                    option.value = type;
+                    option.text = type;
+                    typeSelect.appendChild(option);
+                });
+            }
+
+            function applyFilter() {
+                var cityFilterValue = document.getElementById('cityFilter').value.toLowerCase();
+                var typeFilterValue = document.getElementById('typeFilter').value.toLowerCase();
+                var filteredMarkers = markers.filter(function(marker) {
+                    var data = marker.options.data;
+                    var matchesCity = cityFilterValue === '' || data.city.toLowerCase().includes(cityFilterValue) || data.country.toLowerCase().includes(cityFilterValue);
+                    var matchesType = typeFilterValue === '' || data.type.toLowerCase().includes(typeFilterValue);
+                    return matchesCity && matchesType;
+                });
+
+                if (filteredMarkers.length === 0) {
+                    return;
+                }
+
+                document.getElementById('clubList').innerHTML = ''; // Clear the list
+
+                filteredMarkers.forEach(function(marker) {
+                    marker.addTo(map);
+                    document.getElementById('clubList').appendChild(createListItem(marker, marker.options.data));
+                });
+
+                if (filteredMarkers.length > 0) {
+                    var bounds = L.latLngBounds(filteredMarkers.map(function(m) { return m.getLatLng(); }));
+                    map.fitBounds(bounds);
+                }
+            }
+
+            document.getElementById('cityFilter').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    applyFilter();
+                }
             });
-            updateAutocomplete();
-            updateTypeFilter();
+
+            document.getElementById('typeFilter').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    applyFilter();
+                }
+            });
+
+            document.querySelector('button').addEventListener('click', function() {
+                applyFilter();
+            });
         });
-
-    function addMarker(spot) {
-        var marker = L.marker([spot.lat, spot.lon], {data: spot}).addTo(map);
-        marker.bindPopup(getPopupContent(spot));
-        markers.push(marker);
-        document.getElementById('clubList').appendChild(createListItem(marker, spot));
-    }
-
-    function getPopupContent(spot) {
-        return `<b>${spot.name}</b><br>
-                <img src="${spot.image || typeLogos[spot.type]}" style="width: 150px;"><br>
-                <b>Location:</b> ${spot.city}, ${spot.country}<br>
-                <b>Type:</b> ${spot.type}<br>
-                <b>Days:</b> ${spot.days}<br>
-                <b>Times:</b> ${spot.times}`;
-    }
-
-    function createListItem(marker, spot) {
-        var listItem = document.createElement('li');
-        listItem.className = 'clickable-item';
-        listItem.innerHTML = `<img src="${typeLogos[spot.type]}" class="logo" alt="${spot.type} Logo"><b>${spot.name}</b><br>${spot.city}, ${spot.country}`;
-        listItem.onclick = function() {
-            map.setView(marker.getLatLng(), 15);
-            marker.openPopup();
-        };
-        return listItem;
-    }
-
-    function updateAutocomplete() {
-        $("#cityFilter").autocomplete({
-            source: Array.from(cityCountrySet)
-        });
-    }
-
-    function updateTypeFilter() {
-        var typeSelect = document.getElementById('typeFilter');
-        typeSet.forEach(function(type) {
-            var option = document.createElement('option');
-            option.value = type;
-            option.text = type;
-            typeSelect.appendChild(option);
-        });
-    }
-
-    function applyFilter() {
-        var cityFilterValue = document.getElementById('cityFilter').value.toLowerCase();
-        var typeFilterValue = document.getElementById('typeFilter').value.toLowerCase();
-        var filteredMarkers = markers.filter(function(marker) {
-            var data = marker.options.data;
-            var matchesCity = cityFilterValue === '' || data.city.toLowerCase().includes(cityFilterValue) || data.country.toLowerCase().includes(cityFilterValue);
-            var matchesType = typeFilterValue === '' || data.type.toLowerCase().includes(typeFilterValue);
-            return matchesCity && matchesType;
-        });
-
-        if (filteredMarkers.length === 0) {
-            return;
-        }
-
-        document.getElementById('clubList').innerHTML = ''; // Clear the list
-
-        filteredMarkers.forEach(function(marker) {
-            marker.addTo(map);
-            document.getElementById('clubList').appendChild(createListItem(marker, marker.options.data));
-        });
-
-        if (filteredMarkers.length > 0) {
-            var bounds = L.latLngBounds(filteredMarkers.map(function(m) { return m.getLatLng(); }));
-            map.fitBounds(bounds);
-        }
-    }
-
-    document.getElementById('cityFilter').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            applyFilter();
-        }
-    });
-
-    document.getElementById('typeFilter').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            applyFilter();
-        }
-    });
-
-    document.querySelector('button').addEventListener('click', function() {
-        applyFilter();
-    });
-});
-</script>
-
-
+    </script>
 </body>
 </html>
