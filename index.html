@@ -1,141 +1,131 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Chess Playing Spots Map</title>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Playing Spots Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
-        #map {
-            height: calc(100vh - 100px);
-            width: 100%;
-        }
-        .popup-image {
-            max-width: 100%;
-            height: auto;
-        }
-        .header {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100px;
-            background: url('https://i.imgur.com/uXxb6nu.jpg') no-repeat center center;
-            background-size: cover;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            background-color: rgba(0, 0, 0, 0.5);
-            background-blend-mode: overlay;
-        }
-        .filter-container {
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-        }
-        input[type="text"], select, button {
-            padding: 5px;
-            margin: 5px;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 </head>
 <body>
-    <div class="header">
-        <h1>Chess Playing Spots Around the World</h1>
-        <div class="filter-container">
-            <label for="cityFilter">Filter by City/Country:</label>
-            <input type="text" id="cityFilter" placeholder="Type city or country">
-            <label for="typeFilter">Filter by Type:</label>
-            <select id="typeFilter">
-                <option value="">Select Type</option>
-            </select>
-            <button onclick="applyFilter()">Apply Filter</button>
+    <div class="sidebar">
+        <div class="header">
+            <h1>Chess Playing Spots Around the World</h1>
+            <div class="filter-container">
+                <label for="cityFilter">City / Country:</label>
+                <input type="text" id="cityFilter" placeholder="Type city or country">
+                <label for="typeFilter">Place Type:</label>
+                <select id="typeFilter">
+                    <option value="">Select Type</option>
+                </select>
+                <button onclick="applyFilter()">Search</button>
+            </div>
         </div>
+        <ul id="clubList"></ul>
     </div>
     <div id="map"></div>
 
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
-        // Initialize the map with a default view focused on Europe
         var map = L.map('map').setView([48.8566, 2.3522], 5);
-
-        // Add a tile layer to the map (OpenStreetMap)
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             maxZoom: 18
         }).addTo(map);
 
         var markers = [];
-        var typeOptions = new Set();
+        var typeLogos = {
+            "Chess Club": "https://i.imgur.com/96rCMOK.png",
+            "Chess Park": "https://i.imgur.com/lujRXd5.png",
+            "Chess Cafe": "https://i.imgur.com/Pzgo8PH.png"
+        };
+        var cityCountrySet = new Set(); // Set to store unique city and country names
 
-        // Function to create markers with popups
-        function addMarker(lat, lon, name, days, official, reportedBy, image, site, times, type, city, country, address, contact) {
-            var popupContent = `
-                <b>${name}</b><br>
-                ${image ? `<img src="${image}" class="popup-image"><br>` : ''}
-                <b>Days:</b> ${days}<br>
-                <b>Official:</b> ${official}<br>
-                <b>Reported By:</b> ${reportedBy}<br>
-                <b>Site:</b> <a href="${site}" target="_blank">${site}</a><br>
-                <b>Times:</b> ${times}<br>
-                <b>Type:</b> ${type}<br>
-                <b>City:</b> ${city}<br>
-                <b>Country:</b> ${country}<br>
-                <b>Address:</b> ${address}<br>
-                <b>Contact:</b> ${contact}
-            `;
-            var marker = L.marker([lat, lon]).addTo(map).bindPopup(popupContent);
-            markers.push({ marker: marker, name: name, city: city, country: country, lat: lat, lon: lon, type: type });
-
-            // Add type to the set of type options
-            typeOptions.add(type);
-        }
-
-        // Load JSON data
         fetch('chess_spots.json')
             .then(response => response.json())
             .then(data => {
                 data.forEach(spot => {
-                    addMarker(spot.lat, spot.lon, spot.name, spot.days, spot.official, spot.reportedBy, spot.image, spot.site, spot.times, spot.type, spot.city, spot.country, spot.address, spot.contact);
+                    addMarker(spot);
+                    cityCountrySet.add(spot.city + ", " + spot.country);
                 });
-                updateTypeOptions();
-            })
-            .catch(error => console.error('Error loading JSON:', error));
+                updateTypeFilter();
+                updateAutocomplete();
+            });
 
-        // Update type filter options based on JSON data
-        function updateTypeOptions() {
-            var typeFilter = document.getElementById('typeFilter');
-            typeOptions.forEach(type => {
-                var opt = document.createElement('option');
-                opt.value = type;
-                opt.innerHTML = type;
-                typeFilter.appendChild(opt);
+        function addMarker(spot) {
+            var marker = L.marker([spot.lat, spot.lon]).addTo(map);
+            marker.bindPopup(getPopupContent(spot));
+            markers.push(marker);
+            document.getElementById('clubList').appendChild(createListItem(marker, spot));
+        }
+
+        function getPopupContent(spot) {
+            return `<b>${spot.name}</b><br>
+                    <img src="${spot.image || typeLogos[spot.type]}" style="width: 100px;"><br>
+                    <b>Location:</b> ${spot.city}, ${spot.country}<br>
+                    <b>Type:</b> ${spot.type}<br>
+                    <b>Days:</b> ${spot.days}<br>
+                    <b>Times:</b> ${spot.times}`;
+        }
+
+        function createListItem(marker, spot) {
+            var listItem = document.createElement('li');
+            listItem.className = 'clickable-item';
+            listItem.innerHTML = `<img src="${typeLogos[spot.type]}" class="logo" alt="${spot.type} Logo"><b>${spot.name}</b><br>${spot.city}, ${spot.country}`;
+            listItem.onclick = function() {
+                map.setView(marker.getLatLng(), 15);
+                marker.openPopup();
+            };
+            return listItem;
+        }
+
+        function updateAutocomplete() {
+            $("#cityFilter").autocomplete({
+                source: Array.from(cityCountrySet)
             });
         }
 
-        // Apply filter to focus on selected location
+        function updateTypeFilter() {
+            var typeSelect = document.getElementById('typeFilter');
+            markers.forEach(marker => {
+                if (!typeSelect.innerHTML.includes(marker.options.data.type)) {
+                    var option = document.createElement('option');
+                    option.value = marker.options.data.type.toLowerCase();
+                    option.text = marker.options.data.type;
+                    typeSelect.appendChild(option);
+                }
+            });
+        }
+
         function applyFilter() {
             var cityFilterValue = document.getElementById('cityFilter').value.toLowerCase();
-            var typeFilterValue = document.getElementById('typeFilter').value;
+            var typeFilterValue = document.getElementById('typeFilter').value.toLowerCase();
+            document.getElementById('clubList').innerHTML = ''; // Clear the list
 
-            var filteredMarkers = markers.filter(m =>
-                (m.city.toLowerCase().includes(cityFilterValue) ||
-                m.country.toLowerCase().includes(cityFilterValue)) &&
-                (typeFilterValue === "" || m.type === typeFilterValue)
-            );
-
-            if (filteredMarkers.length > 0) {
-                var filteredMarker = filteredMarkers[0];
-                map.setView([filteredMarker.lat, filteredMarker.lon], 10);
-                filteredMarker.marker.openPopup();
-            } else {
-                map.setView([48.8566, 2.3522], 5); // Reset to Europe view
-            }
+            markers.forEach(marker => {
+                if (marker.getPopup().getContent().toLowerCase().includes(cityFilterValue) &&
+                    marker.getPopup().getContent().toLowerCase().includes(typeFilterValue)) {
+                    marker.addTo(map);
+                    document.getElementById('clubList').appendChild(createListItem(marker, marker.options.data));
+                } else {
+                    map.removeLayer(marker);
+                }
+            });
         }
+
+        document.getElementById('cityFilter').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                applyFilter();
+            }
+        });
+        document.getElementById('typeFilter').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                applyFilter();
+            }
+        });
     </script>
 </body>
 </html>
